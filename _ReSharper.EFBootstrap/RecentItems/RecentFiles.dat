@@ -1,0 +1,49 @@
+﻿<RecentFiles>
+  <RecentFiles>
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:Extensions/f:EnumerableExtensions.cs" caret="0" fromTop="0" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:Extensions/f:StringExtensions.cs" caret="0" fromTop="0" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:Interfaces/f:ISession.cs" caret="0" fromTop="0" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstSession.cs" caret="1227" fromTop="20" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:CodeFirst/f:CodeFirstSession.cs" caret="9028" fromTop="5" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstReadOnlySession.cs" caret="446" fromTop="0" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:CodeFirst/f:CodeFirstReadOnlySession.cs" caret="7214" fromTop="12" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:Interfaces/f:IReadOnlySession.cs" caret="0" fromTop="0" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/f:App.config" caret="0" fromTop="0" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:Caching/f:CachedQueryResult.cs" caret="0" fromTop="0" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:Caching/f:Evaluator.cs" caret="0" fromTop="0" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:Caching/f:LocalCollectionExpander.cs" caret="0" fromTop="0" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:Caching/f:KeyFromExpression.cs" caret="0" fromTop="0" />
+  </RecentFiles>
+  <RecentEdits>
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstReadOnlySession.cs" caret="766" fromTop="15" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:CodeFirst/f:CodeFirstReadOnlySession.cs" caret="739" fromTop="22" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:CodeFirst/f:CodeFirstSession.cs" caret="902" fromTop="27" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstReadOnlySession.cs" caret="906" fromTop="16" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstReadOnlySession.cs" caret="1144" fromTop="21" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstReadOnlySession.cs" caret="2168" fromTop="9" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstReadOnlySession.cs" caret="2436" fromTop="7" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:CodeFirst/f:CodeFirstReadOnlySession.cs" caret="2402" fromTop="9" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstReadOnlySession.cs" caret="8933" fromTop="13" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstReadOnlySession.cs" caret="10084" fromTop="34" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:CodeFirst/f:CodeFirstReadOnlySession.cs" caret="7214" fromTop="12" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstReadOnlySession.cs" caret="7276" fromTop="16" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstReadOnlySession.cs" caret="568" fromTop="17" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstReadOnlySession.cs" caret="446" fromTop="12" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstSession.cs" caret="924" fromTop="6" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstSession.cs" caret="1029" fromTop="16" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstSession.cs" caret="1267" fromTop="21" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstSession.cs" caret="2396" fromTop="16" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstSession.cs" caret="2515" fromTop="13" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstSession.cs" caret="9885" fromTop="18" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstSession.cs" caret="11036" fromTop="34" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstSession.cs" caret="4673" fromTop="20" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstSession.cs" caret="5245" fromTop="17" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstSession.cs" caret="6174" fromTop="23" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstSession.cs" caret="5852" fromTop="18" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstSession.cs" caret="6589" fromTop="13" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstSession.cs" caret="7595" fromTop="18" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstSession.cs" caret="0" fromTop="0" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstSession.cs" caret="364" fromTop="7" />
+    <File id="F93D94C5-2C94-4C3C-83F3-5D559A223B81/d:DbFirst/f:DbFirstSession.cs" caret="483" fromTop="14" />
+  </RecentEdits>
+</RecentFiles>
