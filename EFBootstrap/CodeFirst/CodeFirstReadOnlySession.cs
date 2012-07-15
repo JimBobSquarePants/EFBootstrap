@@ -14,6 +14,8 @@ namespace EFBootstrap.CodeFirst
     using System.Data.Entity;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
+
     using EFBootstrap.Caching;
     using EFBootstrap.Interfaces;
     #endregion
@@ -152,10 +154,14 @@ namespace EFBootstrap.CodeFirst
         /// </param>
         /// <returns>A list of all instances of the specified type that match the expression.</returns>
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
-        public IQueryable<T> Any<T>(Expression<Func<T, bool>> expression) where T : class, new()
+        public IQueryable<T> Any<T>(Expression<Func<T, bool>> expression = null) where T : class, new()
         {
-            // If caching doesn't work for some reason use this instead.
-            // return this.context.Set<T>().AsNoTracking<T>().Where<T>(expression).AsQueryable<T>();
+            // Check for a filtering expression and pull all if not.
+            if (expression == null)
+            {
+                return this.context.Set<T>().AsNoTracking().FromCache<T>(null).AsQueryable();
+            }
+
             return this.context.Set<T>().AsNoTracking<T>().Where<T>(expression).FromCache<T>(expression).AsQueryable<T>();
         }
         #endregion
@@ -200,6 +206,30 @@ namespace EFBootstrap.CodeFirst
             this.isDisposed = true;
         }
         #endregion
+        #endregion
+
+        #region Private
+        /// <summary>
+        /// Returns the name of the type retrieved from the context.
+        /// </summary>
+        /// <returns>The name of the type retrieved from the context.</returns>
+        /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
+        /// <remarks>
+        /// If you get an error here it's because your namespace
+        /// for your EDM doesn't match the partial model class
+        /// to change - open the properties for the EDM FILE and change "Custom Tool Namespace"
+        /// Note - this IS NOT the Namespace setting in the EDM designer - that's for something
+        /// else entirely. This is for the EDMX file itself (r-click, properties)
+        /// </remarks>
+        private string GetSetName<T>()
+        {
+            PropertyInfo entitySetProperty =
+            this.context.GetType().GetProperties()
+               .Single(p => p.PropertyType.IsGenericType && typeof(IQueryable<>)
+               .MakeGenericType(typeof(T)).IsAssignableFrom(p.PropertyType));
+
+            return entitySetProperty.Name;
+        }
         #endregion
         #endregion
     }

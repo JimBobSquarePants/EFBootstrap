@@ -153,10 +153,16 @@ namespace EFBootstrap.DbFirst
         /// </param>
         /// <returns>A list of all instances of the specified type that match the expression.</returns>
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
-        public IQueryable<T> Any<T>(Expression<Func<T, bool>> expression) where T : class, new()
+        public IQueryable<T> Any<T>(Expression<Func<T, bool>> expression = null) where T : class, new()
         {
-            // If caching doesn't work for some reason use this instead.
-            // return new ObjectQuery<T>(GetSetName<T>(), this.context, MergeOption.NoTracking).Where<T>(expression).AsQueryable<T>();
+            // Check for a filtering expression and pull all if not.
+            if (expression == null)
+            {
+                return new ObjectQuery<T>(this.GetSetName<T>(), this.context, MergeOption.NoTracking)
+                            .FromCache<T>(null)
+                            .AsQueryable<T>();
+            }
+
             return new ObjectQuery<T>(this.GetSetName<T>(), this.context, MergeOption.NoTracking)
                         .Where<T>(expression)
                         .FromCache<T>(expression)

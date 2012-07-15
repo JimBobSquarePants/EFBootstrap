@@ -110,9 +110,15 @@ namespace EFBootstrap.CodeFirst
         /// </param>
         /// <returns>A list of all instances of the specified type.</returns>
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
-        public IQueryable<T> Any<T>(Expression<Func<T, bool>> expression) where T : class, new()
+        public IQueryable<T> Any<T>(Expression<Func<T, bool>> expression = null) where T : class, new()
         {
-            return this.context.Set<T>().AsQueryable<T>().Where<T>(expression);
+            // Check for a filtering expression and pull all if not.
+            if (expression == null)
+            {
+                return this.context.Set<T>();
+            }
+
+            return this.context.Set<T>().Where<T>(expression);
         }
         #endregion
 
@@ -177,7 +183,7 @@ namespace EFBootstrap.CodeFirst
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
         public void DeleteAll<T>() where T : class, new()
         {
-            IQueryable<T> query = this.context.Set<T>().AsQueryable<T>();
+            IQueryable<T> query = this.Any<T>();
             Parallel.ForEach(query, this.Delete);
         }
 
