@@ -48,6 +48,11 @@ namespace EFBootstrap.CodeFirst
         /// life in the Garbage Collector.
         /// </remarks>
         private bool isDisposed;
+
+        /// <summary>
+        /// A value indicating whether this instance has been changed.
+        /// </summary>
+        private bool isDirty;
         #endregion
 
         #region Constructors
@@ -131,6 +136,9 @@ namespace EFBootstrap.CodeFirst
         public void Add<T>(T item) where T : class, new()
         {
             this.context.Set<T>().Add(item);
+
+            // Mark as dirty.
+            this.isDirty = true;
         }
 
         /// <summary>
@@ -151,6 +159,9 @@ namespace EFBootstrap.CodeFirst
         public void Update<T>(T item) where T : class, new()
         {
             this.context.Entry<T>(item).State = EntityState.Modified;
+
+            // Mark as dirty.
+            this.isDirty = true;
         }
 
         /// <summary>
@@ -161,6 +172,9 @@ namespace EFBootstrap.CodeFirst
         public void Delete<T>(T item) where T : class, new()
         {
             this.context.Set<T>().Remove(item);
+
+            // Mark as dirty.
+            this.isDirty = true;
         }
 
         /// <summary>
@@ -208,7 +222,11 @@ namespace EFBootstrap.CodeFirst
                 }
             }
 
-            CachedQueryResult.ClearCachedQueries();
+            // Clean the cache if dirty.
+            if (this.isDirty)
+            {
+                CachedQueryResult.ClearCachedQueries();
+            }
         }
         #endregion
         #endregion

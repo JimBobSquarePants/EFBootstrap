@@ -48,6 +48,11 @@ namespace EFBootstrap.DbFirst
         /// life in the Garbage Collector.
         /// </remarks>
         private bool isDisposed;
+
+        /// <summary>
+        /// A value indicating whether this instance has been changed.
+        /// </summary>
+        private bool isDirty;
         #endregion
 
         #region Constructors
@@ -130,6 +135,9 @@ namespace EFBootstrap.DbFirst
         public void Add<T>(T item) where T : class, new()
         {
             this.context.AddObject(this.GetSetName<T>(), item);
+
+            // Mark as dirty.
+            this.isDirty = true;
         }
 
         /// <summary>
@@ -150,7 +158,8 @@ namespace EFBootstrap.DbFirst
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
         public void Update<T>(T item) where T : class, new()
         {
-            // Nothing to see here.... Move on.
+            // Mark as dirty.
+            this.isDirty = true;
         }
 
         /// <summary>
@@ -161,6 +170,9 @@ namespace EFBootstrap.DbFirst
         public void Delete<T>(T item) where T : class, new()
         {
             this.context.DeleteObject(item);
+
+            // Mark as dirty.
+            this.isDirty = true;
         }
 
         /// <summary>
@@ -208,7 +220,11 @@ namespace EFBootstrap.DbFirst
                 }
             }
 
-            CachedQueryResult.ClearCachedQueries();
+            // Clean the cache if dirty.
+            if (this.isDirty)
+            {
+                CachedQueryResult.ClearCachedQueries();
+            }
         }
         #endregion
         #endregion
