@@ -65,7 +65,7 @@ namespace EFBootstrap.Caching
         public static IEnumerable<T> FromCache<T>(this IQueryable<T> query, Expression<Func<T, bool>> expression, CacheItemPriority priority, TimeSpan slidingExpiration) where T : class
         {
             // Pull the correct key to cache the item with.
-            string key = expression == null ? typeof(T).FullName.ToMD5Fingerprint() : expression.GetCacheKey();
+            string key = expression == null ? KeyFromExpression.Prefix + typeof(T).FullName.ToMD5Fingerprint() : expression.GetCacheKey();
 
             // Try to get the query result from the cache
             List<T> result = HttpRuntime.Cache.Get(key) as List<T>
