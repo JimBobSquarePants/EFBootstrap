@@ -119,7 +119,7 @@ namespace EFBootstrap.CodeFirst
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
         public T First<T>(Expression<Func<T, bool>> expression) where T : class, new()
         {
-            return this.Any(expression).FirstOrDefault(expression);
+            return this.Any(expression).FirstOrDefault();
         }
 
         /// <summary>
@@ -206,30 +206,6 @@ namespace EFBootstrap.CodeFirst
             this.isDisposed = true;
         }
         #endregion
-        #endregion
-
-        #region Private
-        /// <summary>
-        /// Returns the name of the type retrieved from the context.
-        /// </summary>
-        /// <returns>The name of the type retrieved from the context.</returns>
-        /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
-        /// <remarks>
-        /// If you get an error here it's because your namespace
-        /// for your EDM doesn't match the partial model class
-        /// to change - open the properties for the EDM FILE and change "Custom Tool Namespace"
-        /// Note - this IS NOT the Namespace setting in the EDM designer - that's for something
-        /// else entirely. This is for the EDMX file itself (r-click, properties)
-        /// </remarks>
-        private string GetSetName<T>()
-        {
-            PropertyInfo entitySetProperty =
-            this.context.GetType().GetProperties()
-               .Single(p => p.PropertyType.IsGenericType && typeof(IQueryable<>)
-               .MakeGenericType(typeof(T)).IsAssignableFrom(p.PropertyType));
-
-            return entitySetProperty.Name;
-        }
         #endregion
         #endregion
     }

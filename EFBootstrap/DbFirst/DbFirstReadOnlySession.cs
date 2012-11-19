@@ -118,7 +118,7 @@ namespace EFBootstrap.DbFirst
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
         public T First<T>(Expression<Func<T, bool>> expression) where T : class, new()
         {
-            return this.Any(expression).FirstOrDefault(expression);
+            return this.Any(expression).FirstOrDefault();
         }
 
         /// <summary>
