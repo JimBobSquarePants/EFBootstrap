@@ -98,9 +98,14 @@ namespace EFBootstrap.Sessions
         /// A strongly typed lambda expression as a date structure
         /// in the form of an expression tree.
         /// </param>
+        /// <param name="includeCollection">
+        /// An optional parameter array of strongly typed lambda expressions containing details of which related entities to
+        /// eagerly load.
+        /// </param>
         /// <returns>A single instance of the given type</returns>
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
-        public T First<T>(Expression<Func<T, bool>> expression) where T : class, new()
+        public T First<T>(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includeCollection)
+            where T : class, new()
         {
             return this.Any(expression).FirstOrDefault();
         }
@@ -112,17 +117,29 @@ namespace EFBootstrap.Sessions
         /// A strongly typed lambda expression as a date structure
         /// in the form of an expression tree.
         /// </param>
+        /// <param name="includeCollection">
+        /// An optional parameter array of strongly typed lambda expressions containing details of which related entities to
+        /// eagerly load.
+        /// </param>
         /// <returns>A list of all instances of the specified type.</returns>
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
-        public IQueryable<T> Any<T>(Expression<Func<T, bool>> expression = null) where T : class, new()
+        public IQueryable<T> Any<T>(Expression<Func<T, bool>> expression = null, params Expression<Func<T, object>>[] includeCollection)
+            where T : class, new()
         {
-            // Check for a filtering expression and pull all if not.
-            if (expression == null)
+            IQueryable<T> query = this.context.Set<T>().AsQueryable<T>();
+
+            if (includeCollection.Any())
             {
-                return this.context.Set<T>();
+                query = includeCollection.Aggregate(query, (current, include) => current.Include(include));
             }
 
-            return this.context.Set<T>().Where<T>(expression);
+            // Check for a filtering expression and pull all if not.
+            if (expression != null)
+            {
+                query = query.Where<T>(expression);
+            }
+
+            return query;
         }
         #endregion
 

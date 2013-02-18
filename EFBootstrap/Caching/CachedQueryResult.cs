@@ -35,18 +35,24 @@ namespace EFBootstrap.Caching
         /// <summary>
         /// Returns the result of the query; if possible from the cache, otherwise
         /// the query is materialized and the result cached before being returned.
-        /// The cache entry has a one minute sliding expiration with normal priority.
+        /// The cache entry has a ten minute sliding expiration with normal priority.
         /// </summary>
         /// <param name="query">The IQueryable for which to return the query.</param>
         /// <param name="expression">
         /// A strongly typed lambda expression as a date structure
         /// in the form of an expression tree.
         /// </param>
+        /// <param name="includeCollection">
+        /// An optional parameter array of strongly typed lambda expressions containing details of which related entities to
+        /// eagerly load.
+        /// </param>
         /// <returns>The result of the query; if possible from the cache</returns>
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
-        public static IEnumerable<T> FromCache<T>(this IQueryable<T> query, Expression<Func<T, bool>> expression) where T : class
+        public static IEnumerable<T> FromCache<T>(this IQueryable<T> query,
+            Expression<Func<T, bool>> expression,
+            params Expression<Func<T, object>>[] includeCollection) where T : class
         {
-            return query.FromCache(expression, CacheItemPriority.Normal, TimeSpan.FromMinutes(1));
+            return query.FromCache(expression, CacheItemPriority.Normal, TimeSpan.FromMinutes(10), includeCollection);
         }
 
         /// <summary>
@@ -60,12 +66,27 @@ namespace EFBootstrap.Caching
         /// </param>
         /// <param name="priority">The relative cache priority of the object.</param>
         /// <param name="slidingExpiration">The timespan indicating the duration of the sliding expiration</param>
+        /// <param name="includeCollection">
+        /// An optional parameter array of strongly typed lambda expressions containing details of which related entities to
+        /// eagerly load.
+        /// </param>
         /// <returns>The result of the query; if possible from the cache</returns>
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
-        public static IEnumerable<T> FromCache<T>(this IQueryable<T> query, Expression<Func<T, bool>> expression, CacheItemPriority priority, TimeSpan slidingExpiration) where T : class
+        public static IEnumerable<T> FromCache<T>(this IQueryable<T> query,
+            Expression<Func<T, bool>> expression,
+            CacheItemPriority priority, TimeSpan slidingExpiration,
+            params Expression<Func<T, object>>[] includeCollection) where T : class
         {
             // Pull the correct key to cache the item with.
-            string key = expression == null ? KeyFromExpression.Prefix + typeof(T).FullName.ToMD5Fingerprint() : expression.GetCacheKey();
+            string key = expression == null
+                ? KeyFromExpression.Prefix + typeof(T).FullName.ToMD5Fingerprint()
+                : expression.GetCacheKey();
+
+            // Get the includes and add them to the cache key.
+            if (includeCollection.Any())
+            {
+                key = includeCollection.Aggregate(key, (current, include) => current + include.ToString());
+            }
 
             // Try to get the query result from the cache
             List<T> result = HttpRuntime.Cache.Get(key) as List<T>
@@ -91,7 +112,7 @@ namespace EFBootstrap.Caching
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
         public static IEnumerable<T> ToCache<T>(this IQueryable<T> query, Expression<Func<T, bool>> expression, string key) where T : class
         {
-            return query.ToCache(expression, key, CacheItemPriority.Normal, TimeSpan.FromMinutes(1));
+            return query.ToCache(expression, key, CacheItemPriority.Normal, TimeSpan.FromMinutes(10));
         }
 
         /// <summary>

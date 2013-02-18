@@ -29,9 +29,13 @@ namespace EFBootstrap.Interfaces
         /// A strongly typed lambda expression as a date structure
         /// in the form of an expression tree.
         /// </param>
+        /// <param name="includeCollection">
+        /// An optional parameter array of strongly typed lambda expressions containing details of which related entities to
+        /// eagerly load.
+        /// </param>
         /// <returns>A single instance of the given type</returns>
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
-        T First<T>(Expression<Func<T, bool>> expression) where T : class, new();
+        T First<T>(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includeCollection) where T : class, new();
 
         /// <summary>
         /// Retrieves all instances of the specified type that manage the given query.
@@ -41,9 +45,13 @@ namespace EFBootstrap.Interfaces
         /// A strongly typed lambda expression as a date structure
         /// in the form of an expression tree.
         /// </param>
+        /// <param name="includeCollection">
+        /// An optional parameter array of strongly typed lambda expressions containing details of which related entities to
+        /// eagerly load.
+        /// </param>
         /// <returns>A single instance of the given type</returns>
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
-        IQueryable<T> Any<T>(Expression<Func<T, bool>> expression) where T : class, new();
+        IQueryable<T> Any<T>(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includeCollection) where T : class, new();
         #endregion
 
         #region Modification
