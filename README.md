@@ -16,7 +16,7 @@ I only really use MVC so the instructions are written in that context however th
 
 So.... Lets imagine we are crating a blogging engine. I won't go into any detail on generating Code First Models as there is plenty of documentation out there.
 
-## CodeFirst
+## Sessions
 
 Create your `DbContext` file as per usual in this case we are calling it **BlogEntitiesContext**.
 
@@ -26,9 +26,9 @@ You'll need to create two classes, one for each repository type e.g
 
     /// <summary>
     /// Encapsulates methods for persisting objects to and from data storage
-    /// using the Entity Framework Code First.
+    /// using the Entity Framework.
     /// </summary>
-    public class SiteEFSession : CodeFirstSession
+    public class SiteEFSession : ReadWriteSession
     {
         #region Constructors
         /// <summary>
@@ -55,9 +55,9 @@ You'll need to create two classes, one for each repository type e.g
 
     /// <summary>
     /// Encapsulates methods for retirieving objects from data storage
-    /// using the Entity Framework Code First.
+    /// using the Entity Framework.
     /// </summary>
-    public class SiteEFReadOnlySession : CodeFirstReadOnlySession
+    public class SiteEFReadOnlySession : ReadOnlySession
     {
         #region Constructors
         /// <summary>
@@ -80,69 +80,7 @@ You'll need to create two classes, one for each repository type e.g
         #endregion
     }
     
-## DB First
-
-First create your `ADO.NET Data Entity Model` in the normal manner then the following classes in this case weve called it **BlogEntities**.
-
-### ReadWrite
-
-    /// <summary>
-    /// Encapsulates methods for persisting objects to and from data storage
-    /// using the Entity Framework.
-    /// </summary>
-    public class SiteEFSession : EFSession
-    {
-        #region Constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:Blog.Models.SiteEFSession"/> class. 
-        /// </summary>
-        public SiteEFSession()
-            : base(new BlogEntities())
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:Blog.Models.SiteEFSession"/> class. 
-        /// </summary>
-        /// <param name="context">The <see cref="T:System.Data.Objects.ObjectContext"/> 
-        /// for querying and working with entity data as objects.</param>
-        public SiteEFSession(ObjectContext context)
-            : base(context)
-        {
-        }
-        #endregion
-    }
-    
-### ReadOnly
-
-    /// <summary>
-    /// Encapsulates methods for retrieving objects from data storage
-    /// using the Entity Framework.
-    /// </summary>
-    public class SiteEFReadOnlySession : EFSession
-    {
-        #region Constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:Blog.Models.SiteEFReadOnlySession"/> class. 
-        /// </summary>
-        public SiteEFReadOnlySession()
-            : base(new BlogEntities())
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:Blog.Models.SiteEFReadOnlySession"/> class. 
-        /// </summary>
-        /// <param name="context">The <see cref="T:System.Data.Objects.ObjectContext"/> 
-        /// for querying and working with entity data as objects.</param>
-        public SiteEFSession(ObjectContext context)
-            : base(context)
-        {
-        }
-        #endregion
-    }    
-    
-After that all the code is the same... You will first need to wire up your controllers to use these classes. I prefer to do it using the interfaces `ISession` and `IReadOnlySession` and dependancy injection using the awesome **Ninject** http://www.ninject.org/ This gives me much more freedom should I want to change ORM.
+You will first need to wire up your controllers to use these classes. I prefer to do it using the interfaces `ISession` and `IReadOnlySession` and dependancy injection using the awesome **Ninject** http://www.ninject.org/ This gives me much more freedom should I want to change ORM.
 
 An example would be something like this:
 
