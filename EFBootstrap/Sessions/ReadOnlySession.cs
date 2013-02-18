@@ -1,17 +1,17 @@
 ﻿#region Licence
 // -----------------------------------------------------------------------
-// <copyright file="DbFirstReadOnlySession.cs" company="James South">
-//     Copyright (c) 2012,  James South.
+// <copyright file="ReadOnlySession.cs" company="James South">
+//     Copyright (c) James South.
 //     Dual licensed under the MIT or GPL Version 2 licenses.
 // </copyright>
 // -----------------------------------------------------------------------
 #endregion
 
-namespace EFBootstrap.DbFirst
+namespace EFBootstrap.Sessions
 {
     #region Using
     using System;
-    using System.Data.Objects;
+    using System.Data.Entity;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -21,16 +21,16 @@ namespace EFBootstrap.DbFirst
 
     /// <summary>
     /// Encapsulates methods for persisting objects to and from data storage
-    /// using Entity Framework DB First. 
+    /// using Entity Framework Code First. 
     /// </summary>
-    public class DbFirstReadOnlySession : IReadOnlySession
+    public class ReadOnlySession : IReadOnlySession
     {
         #region Fields
         /// <summary>
-        /// The <see cref="T:System.Data.Objects.ObjectContext">ObjectContext</see> 
+        /// The <see cref="T:System.Data.Entity.DbContext">DbContext</see> 
         /// for querying and working with entity data as objects.
         /// </summary>
-        private ObjectContext context;
+        private readonly DbContext context;
 
         /// <summary>
         /// A value indicating whether this instance of the given entity has been disposed.
@@ -48,13 +48,13 @@ namespace EFBootstrap.DbFirst
 
         #region Constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:EFBootstrap.DbFirst.DbFirstReadOnlySession"/> class. 
+        /// Initializes a new instance of the <see cref="T:EFBootstrap.Sessions.ReadOnlySession"/> class. 
         /// </summary>
         /// <param name="context">
-        /// The <see cref="T:System.Data.Objects.ObjectContext">ObjectContext</see> 
+        /// The <see cref="T:System.Data.Entity.DbContext">DbContext</see> 
         /// for querying and working with entity data as objects.
         /// </param>
-        public DbFirstReadOnlySession(ObjectContext context)
+        public ReadOnlySession(DbContext context)
         {
             this.context = context;
         }
@@ -62,7 +62,7 @@ namespace EFBootstrap.DbFirst
 
         #region Destructors
         /// <summary>
-        /// Finalizes an instance of the <see cref="EFBootstrap.DbFirst.DbFirstReadOnlySession"/> class. 
+        /// Finalizes an instance of the <see cref="EFBootstrap.Sessions.ReadOnlySession"/> class. 
         /// </summary>
         /// <remarks>
         /// Use C# destructor syntax for finalization code.
@@ -71,7 +71,7 @@ namespace EFBootstrap.DbFirst
         /// It gives your base class the opportunity to finalize.
         /// Do not provide destructors in types derived from this class.
         /// </remarks>
-        ~DbFirstReadOnlySession()
+        ~ReadOnlySession()
         {
             // Do not re-create Dispose clean-up code here.
             // Calling Dispose(false) is optimal in terms of
@@ -158,15 +158,10 @@ namespace EFBootstrap.DbFirst
             // Check for a filtering expression and pull all if not.
             if (expression == null)
             {
-                return new ObjectQuery<T>(this.GetSetName<T>(), this.context, MergeOption.NoTracking)
-                            .FromCache<T>(null)
-                            .AsQueryable<T>();
+                return this.context.Set<T>().AsNoTracking().FromCache<T>(null).AsQueryable();
             }
 
-            return new ObjectQuery<T>(this.GetSetName<T>(), this.context, MergeOption.NoTracking)
-                        .Where<T>(expression)
-                        .FromCache<T>(expression)
-                        .AsQueryable<T>();
+            return this.context.Set<T>().AsNoTracking<T>().Where<T>(expression).FromCache<T>(expression).AsQueryable<T>();
         }
         #endregion
         #endregion
@@ -210,30 +205,6 @@ namespace EFBootstrap.DbFirst
             this.isDisposed = true;
         }
         #endregion
-        #endregion
-
-        #region Private
-        /// <summary>
-        /// Returns the name of the type retrieved from the context.
-        /// </summary>
-        /// <returns>The name of the type retrieved from the context.</returns>
-        /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
-        /// <remarks>
-        /// If you get an error here it's because your namespace
-        /// for your EDM doesn't match the partial model class
-        /// to change - open the properties for the EDM FILE and change "Custom Tool Namespace"
-        /// Note - this IS NOT the Namespace setting in the EDM designer - that's for something
-        /// else entirely. This is for the EDMX file itself (r-click, properties)
-        /// </remarks>
-        private string GetSetName<T>()
-        {
-            PropertyInfo entitySetProperty =
-            this.context.GetType().GetProperties()
-               .Single(p => p.PropertyType.IsGenericType && typeof(IQueryable<>)
-               .MakeGenericType(typeof(T)).IsAssignableFrom(p.PropertyType));
-
-            return entitySetProperty.Name;
-        }
         #endregion
         #endregion
     }

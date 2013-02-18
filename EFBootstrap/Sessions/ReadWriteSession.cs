@@ -1,21 +1,24 @@
 ﻿#region Licence
 // -----------------------------------------------------------------------
-// <copyright file="CodeFirstReadOnlySession.cs" company="James South">
-//     Copyright (c) 2012,  James South.
+// <copyright file="ReadWriteSession.cs" company="James South">
+//     Copyright (c) James South.
 //     Dual licensed under the MIT or GPL Version 2 licenses.
 // </copyright>
 // -----------------------------------------------------------------------
 #endregion
 
-namespace EFBootstrap.CodeFirst
+namespace EFBootstrap.Sessions
 {
     #region Using
     using System;
+    using System.Collections.Generic;
+    using System.Data;
     using System.Data.Entity;
+    using System.Data.Entity.Validation;
+    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Reflection;
-
+    using System.Threading.Tasks;
     using EFBootstrap.Caching;
     using EFBootstrap.Interfaces;
     #endregion
@@ -24,7 +27,7 @@ namespace EFBootstrap.CodeFirst
     /// Encapsulates methods for persisting objects to and from data storage
     /// using Entity Framework Code First. 
     /// </summary>
-    public class CodeFirstReadOnlySession : IReadOnlySession
+    public class ReadWriteSession : ISession
     {
         #region Fields
         /// <summary>
@@ -45,17 +48,20 @@ namespace EFBootstrap.CodeFirst
         /// life in the Garbage Collector.
         /// </remarks>
         private bool isDisposed;
+
+        /// <summary>
+        /// A value indicating whether this instance has been changed.
+        /// </summary>
+        private bool isDirty;
         #endregion
 
         #region Constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:EFBootstrap.CodeFirst.CodeFirstReadOnlySession"/> class. 
+        /// Initializes a new instance of the <see cref="T:EFBootstrap.Sessions.ReadWriteSession"/> class. 
         /// </summary>
-        /// <param name="context">
-        /// The <see cref="T:System.Data.Entity.DbContext">DbContext</see> 
-        /// for querying and working with entity data as objects.
-        /// </param>
-        public CodeFirstReadOnlySession(DbContext context)
+        /// <param name="context">The <see cref="T:System.Data.Entity.DbContext">DbContext</see> 
+        /// for querying and working with entity data as objects.</param>
+        public ReadWriteSession(DbContext context)
         {
             this.context = context;
         }
@@ -63,7 +69,7 @@ namespace EFBootstrap.CodeFirst
 
         #region Destructors
         /// <summary>
-        /// Finalizes an instance of the <see cref="EFBootstrap.CodeFirst.CodeFirstReadOnlySession"/> class. 
+        /// Finalizes an instance of the <see cref="T:EFBootstrap.Sessions.ReadWriteSession"/> class.
         /// </summary>
         /// <remarks>
         /// Use C# destructor syntax for finalization code.
@@ -72,7 +78,7 @@ namespace EFBootstrap.CodeFirst
         /// It gives your base class the opportunity to finalize.
         /// Do not provide destructors in types derived from this class.
         /// </remarks>
-        ~CodeFirstReadOnlySession()
+        ~ReadWriteSession()
         {
             // Do not re-create Dispose clean-up code here.
             // Calling Dispose(false) is optimal in terms of
@@ -87,29 +93,6 @@ namespace EFBootstrap.CodeFirst
         #region Retrieval
         /// <summary>
         /// Retrieves the first instance of the specified type that matches the given query, if possible from the cache.
-        /// <para>
-        /// Objects are maintained in a <see cref="T:System.Data.EntityState">Detached</see> state and 
-        /// are not tracked in the <see cref="T:System.Data.Objects.ObjectStateManager">ObjectStateManager</see>.
-        /// </para>
-        /// <remarks>
-        /// <para>
-        /// It's important to note that since the method internally calls ToList(), any expression functions will 
-        /// utilize LinqToObjects and the normal rules of C# comparision will apply.
-        /// As a result a query this like this 
-        /// <para>
-        /// <example>
-        /// .Single&lt;Product&gt;(x => x.Color.Equals("Black", StringComparison.InvariantCultureIgnoreCase)
-        /// </example>
-        /// </para>
-        /// will call a NullExceptionError if the property "Color" is null.
-        /// </para>
-        /// The best way to avoid this expection is to use <example>==</example> or switch the sides of the argument
-        /// <para>
-        /// <example>
-        /// .Single&lt;Product&gt;(x => "Black".Equals(x.Color, StringComparison.InvariantCultureIgnoreCase)
-        /// </example>
-        /// </para>
-        /// </remarks>
         /// </summary>
         /// <param name="expression">
         /// A strongly typed lambda expression as a date structure
@@ -123,46 +106,126 @@ namespace EFBootstrap.CodeFirst
         }
 
         /// <summary>
-        /// A list of all instances of the specified type that match the expression, if possible from the cache.
-        /// <para>
-        /// Objects are maintained in a <see cref="T:System.Data.EntityState">Detached</see> state and 
-        /// are not tracked in the <see cref="T:System.Data.Objects.ObjectStateManager">ObjectStateManager</see>.
-        /// </para>
-        /// <remarks>
-        /// <para>
-        /// It's important to note that since the method internally calls ToList(), any expression functions will 
-        /// utilize LinqToObjects and the normal rules of C# comparision will apply.
-        /// As a result a query this like this 
-        /// <para>
-        /// <example>
-        /// .All&lt;Product&gt;().Where(x => x.Color.Equals("Black", StringComparison.InvariantCultureIgnoreCase)
-        /// </example>
-        /// </para>
-        /// will call a NullExceptionError if the property "Color" is null.
-        /// </para>
-        /// The best way to avoid this expection is to use <example>==</example> or switch the sides of the argument
-        /// <para>
-        /// <example>
-        /// .All&lt;Product&gt;().Where(x => "Black".Equals(x.Color, StringComparison.InvariantCultureIgnoreCase)
-        /// </example>
-        /// </para>
-        /// </remarks>
+        /// Retrieves all instances of the specified type.
         /// </summary>
         /// <param name="expression">
         /// A strongly typed lambda expression as a date structure
         /// in the form of an expression tree.
         /// </param>
-        /// <returns>A list of all instances of the specified type that match the expression.</returns>
+        /// <returns>A list of all instances of the specified type.</returns>
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
         public IQueryable<T> Any<T>(Expression<Func<T, bool>> expression = null) where T : class, new()
         {
             // Check for a filtering expression and pull all if not.
             if (expression == null)
             {
-                return this.context.Set<T>().AsNoTracking().FromCache<T>(null).AsQueryable();
+                return this.context.Set<T>();
             }
 
-            return this.context.Set<T>().AsNoTracking<T>().Where<T>(expression).FromCache<T>(expression).AsQueryable<T>();
+            return this.context.Set<T>().Where<T>(expression);
+        }
+        #endregion
+
+        #region Modification
+        /// <summary>
+        /// Adds a single instance of the specified type.
+        /// </summary>
+        /// <param name="item">The instance of the given type to add.</param>
+        /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
+        public void Add<T>(T item) where T : class, new()
+        {
+            this.context.Set<T>().Add(item);
+
+            // Mark as dirty.
+            this.isDirty = true;
+        }
+
+        /// <summary>
+        /// Adds a collection of instances of the specified type.
+        /// </summary>
+        /// <param name="items">A collection of items of the given type to add.</param>
+        /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
+        public void Add<T>(IEnumerable<T> items) where T : class, new()
+        {
+            Parallel.ForEach(items, this.Add);
+        }
+
+        /// <summary>
+        /// Updates an instance of the specified type.
+        /// </summary>
+        /// <param name="item">The instance of the given type to add.</param>
+        /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
+        public void Update<T>(T item) where T : class, new()
+        {
+            this.context.Entry<T>(item).State = EntityState.Modified;
+
+            // Mark as dirty.
+            this.isDirty = true;
+        }
+
+        /// <summary>
+        /// Deletes a single instance of the specified type.
+        /// </summary>
+        /// <param name="item">The instance of the type to delete.</param>c
+        /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
+        public void Delete<T>(T item) where T : class, new()
+        {
+            this.context.Set<T>().Remove(item);
+
+            // Mark as dirty.
+            this.isDirty = true;
+        }
+
+        /// <summary>
+        /// Deletes all instances of the specified type that match the query.
+        /// </summary>
+        /// <param name="expression">
+        /// A strongly typed lambda expression as a date structure
+        /// in the form of an expression tree.
+        /// </param>
+        /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
+        public void Delete<T>(Expression<Func<T, bool>> expression) where T : class, new()
+        {
+            IQueryable<T> query = this.Any(expression);
+            Parallel.ForEach(query, this.Delete);
+        }
+
+        /// <summary>
+        /// Deletes all instances of the given type.
+        /// </summary> 
+        /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
+        public void DeleteAll<T>() where T : class, new()
+        {
+            IQueryable<T> query = this.Any<T>();
+            Parallel.ForEach(query, this.Delete);
+        }
+
+        /// <summary>
+        /// Commits the changes made to the repository.
+        /// </summary>
+        public void CommitChanges()
+        {
+            try
+            {
+                // Clear the cache and save.
+                this.context.SaveChanges();
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var validationErrors in e.EntityValidationErrors)
+                {
+                    foreach (var validationError in validationErrors.ValidationErrors)
+                    {
+                        Trace.TraceInformation("Property: {0} Error: {1}", validationError.PropertyName, validationError.ErrorMessage);
+                    }
+                }
+            }
+
+            // Clean the cache if dirty.
+            if (this.isDirty)
+            {
+                CachedQueryResult.ClearCachedQueries();
+            }
         }
         #endregion
         #endregion

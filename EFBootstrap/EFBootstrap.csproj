@@ -31,8 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework">
-      <HintPath>..\packages\EntityFramework.4.3.1\lib\net40\EntityFramework.dll</HintPath>
+    <Reference Include="EntityFramework, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -50,10 +51,8 @@
     <Compile Include="Caching\Evaluator.cs" />
     <Compile Include="Caching\KeyFromExpression.cs" />
     <Compile Include="Caching\LocalCollectionExpander.cs" />
-    <Compile Include="DbFirst\DbFirstSession.cs" />
-    <Compile Include="CodeFirst\CodeFirstReadOnlySession.cs" />
-    <Compile Include="CodeFirst\CodeFirstSession.cs" />
-    <Compile Include="DbFirst\DbFirstReadOnlySession.cs" />
+    <Compile Include="Sessions\ReadOnlySession.cs" />
+    <Compile Include="Sessions\ReadWriteSession.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Interfaces\IReadOnlySession.cs" />
