@@ -11,6 +11,7 @@ namespace EFBootstrap.Sessions
 {
     #region Using
     using System;
+    using System.Collections.Generic;
     using System.Data.Entity;
     using System.Linq;
     using System.Linq.Expressions;
@@ -163,6 +164,34 @@ namespace EFBootstrap.Sessions
 
             return this.context.Set<T>().AsNoTracking<T>().Where<T>(expression).FromCache<T>(expression).AsQueryable<T>();
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="dynamic"></typeparam>
+        /// <param name="includeInfo"></param>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public IQueryable<T> AnyWithInclude<T>(Expression<Func<T, bool>> expression = null, params Expression<Func<T, dynamic>>[] includeCollection) where T : class, new()
+        {
+          
+            IQueryable<T> query = this.context.Set<T>().AsNoTracking().AsQueryable<T>();
+
+            foreach (var include in includeCollection)
+            {
+                query = query.Include(include);
+            }
+
+            // Check for a filtering expression and pull all if not.
+            if (expression != null)
+            {
+                query = query.Where<T>(expression);
+            }
+
+            return query.FromCache<T>(expression).AsQueryable<T>();
+        }
+
         #endregion
         #endregion
 

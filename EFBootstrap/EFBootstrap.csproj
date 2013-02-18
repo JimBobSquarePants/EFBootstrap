@@ -51,6 +51,7 @@
     <Compile Include="Caching\Evaluator.cs" />
     <Compile Include="Caching\KeyFromExpression.cs" />
     <Compile Include="Caching\LocalCollectionExpander.cs" />
+    <Compile Include="Class1.cs" />
     <Compile Include="Sessions\ReadOnlySession.cs" />
     <Compile Include="Sessions\ReadWriteSession.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
