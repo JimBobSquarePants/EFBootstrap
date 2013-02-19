@@ -79,6 +79,53 @@ namespace EFBootstrap.Caching
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
         public static string GetCacheKey<T>(this Expression<Func<T, bool>> expression) where T : class
         {
+            // Convert the expresssion type to an object.
+            Expression<Func<T, object>> converted = AddBox<T, bool, object>(expression);
+
+            return EvaluateExpression(converted);
+        }
+
+        /// <summary>
+        /// Returns a unique cache key for the given expression.
+        /// </summary>
+        /// <param name="expression">
+        /// A strongly typed lambda expression as a date structure
+        /// in the form of an expression tree.
+        /// </param>
+        /// <returns>A single instance of the given type</returns>
+        /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
+        public static string GetCacheKey<T>(this Expression<Func<T, object>> expression) where T : class
+        {
+            return EvaluateExpression<T>(expression);
+        }
+
+        /// <summary>
+        /// Converts a Linq Expression from one type to another.
+        /// http://stackoverflow.com/questions/729295/how-to-cast-expressionfunct-datetime-to-expressionfunct-object
+        /// </summary>
+        /// <typeparam name="TModel">The type of entity for which to provide the method.</typeparam>
+        /// <typeparam name="TFromProperty">The type to convert from.</typeparam>
+        /// <typeparam name="TToProperty">The type to convert to.</typeparam>
+        /// <param name="expression"></param>
+        /// <returns>The strongly typed lambda expression</returns>
+        private static Expression<Func<TModel, TToProperty>> AddBox<TModel, TFromProperty, TToProperty>(Expression<Func<TModel, TFromProperty>> expression)
+        {
+            Expression converted = Expression.Convert(expression.Body, typeof(TToProperty));
+
+            return Expression.Lambda<Func<TModel, TToProperty>>(converted, expression.Parameters);
+        }
+
+        /// <summary>
+        /// Returns a unique cache key for the given expression.
+        /// </summary>
+        /// <param name="expression">
+        /// A strongly typed lambda expression as a date structure
+        /// in the form of an expression tree.
+        /// </param>
+        /// <returns>A single instance of the given type</returns>
+        /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
+        private static string EvaluateExpression<T>(Expression<Func<T, object>> expression)
+        {
             // Locally evaluate as much of the query as possible
             Expression predicate = Evaluator.PartialEval(expression, CanBeEvaluatedLocally);
 
@@ -99,9 +146,7 @@ namespace EFBootstrap.Caching
             // Please bear in mind that although there is not yet a known method to attack MD5, there are theoretical 
             // collisions that can be exploited against it so if you are concerned about sensitive data use a higher encryption method
             // This will affect performance though. http://msdn.microsoft.com/en-us/library/ms978415.aspx
-            key = CachedQueryPrefix + key.ToMD5Fingerprint();
-
-            return key;
+            return key.ToMD5Fingerprint();
         }
         #endregion
     }

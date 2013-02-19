@@ -80,12 +80,12 @@ namespace EFBootstrap.Caching
             // Pull the correct key to cache the item with.
             string key = expression == null
                 ? KeyFromExpression.Prefix + typeof(T).FullName.ToMD5Fingerprint()
-                : expression.GetCacheKey();
+                : KeyFromExpression.Prefix + expression.GetCacheKey();
 
             // Get the includes and add them to the cache key.
             if (includeCollection.Any())
             {
-                key = includeCollection.Aggregate(key, (current, include) => current + include.ToString());
+                key = includeCollection.Aggregate(key, (current, include) => current + include.GetCacheKey());
             }
 
             // Try to get the query result from the cache
