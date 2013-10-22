@@ -1,8 +1,10 @@
 # EFBootstrap
 
-A simple class library written in C# for communicating with databases using the Entity Framework from Microsoft.
+A class library written in C# for communicating with databases using the Entity Framework (built against EF6) from Microsoft. Comes with 2nd  level caching.
 
-These classes contain generic repositories allowing you to persist any class to/from your databases. They contain methods for CodeFirst and DB First repositories in readonly and readwrite flavours. The readonly versions will automatically cache your queries for a rolling one minute period which is flushed on any database updates.
+These classes contain generic repositories allowing you to persist any class to/from your databases. They contain methods for CodeFirst and DB First 
+repositories in readonly and readwrite flavours. The readonly version will automatically provide 2nd level caching
+for your queries for a rolling ten minute period (configurable) which is flushed on any database updates.
 
 # Installation
 
@@ -12,9 +14,9 @@ I *might* add this to Nuget if there is any traction.
 
 # Wiring it up
 
-I only really use MVC so the instructions are written in that context however the classes should be compatible with any .NET product utilising the **System.Web.Caching.Cache** class.
+I only really use MVC so the instructions are written in that context however the classes should be compatible with any .NET 4 product.
 
-So.... Lets imagine we are crating a blogging engine. I won't go into any detail on generating Code First Models as there is plenty of documentation out there.
+So.... Lets imagine we are creating a blog engine. I won't go into any detail on generating Code First Models as there is plenty of documentation out there.
 
 ## Sessions
 
@@ -24,116 +26,124 @@ You'll need to create two classes, one for each repository type e.g
 
 ### ReadWrite
 
+``` c#
+/// <summary>
+/// Encapsulates methods for persisting objects to and from data storage
+/// using the Entity Framework.
+/// </summary>
+public class SiteEFSession : ReadWriteSession
+{
+    #region Constructors
     /// <summary>
-    /// Encapsulates methods for persisting objects to and from data storage
-    /// using the Entity Framework.
+    /// Initializes a new instance of the <see cref="T:Blog.Models.SiteEFSession"/> class. 
     /// </summary>
-    public class SiteEFSession : ReadWriteSession
+    public SiteEFSession()
+        : base(new BlogEntitiesContext())
     {
-        #region Constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:Blog.Models.SiteEFSession"/> class. 
-        /// </summary>
-        public SiteEFSession()
-            : base(new BlogEntitiesContext())
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:Blog.Models.SiteEFSession"/> class. 
-        /// </summary>
-        /// <param name="context">The <see cref="T:System.Data.Entity.DbContext">DBContext</see> 
-        /// for querying and working with entity data as objects.</param>
-        public SiteEFSession(DbContext context)
-            : base(context)
-        {
-        }
-        #endregion
     }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="T:Blog.Models.SiteEFSession"/> class. 
+    /// </summary>
+    /// <param name="context">The <see cref="T:System.Data.Entity.DbContext">DBContext</see> 
+    /// for querying and working with entity data as objects.</param>
+    public SiteEFSession(DbContext context)
+        : base(context)
+    {
+    }
+    #endregion
+}
+```
 
 ### ReadOnly
 
+```
+/// <summary>
+/// Encapsulates methods for retrieving objects from data storage
+/// using the Entity Framework.
+/// </summary>
+public class SiteEFReadOnlySession : ReadOnlySession
+{
+    #region Constructors
     /// <summary>
-    /// Encapsulates methods for retirieving objects from data storage
-    /// using the Entity Framework.
+    /// Initializes a new instance of the <see cref="T:Blog.Models.SiteEFReadOnlySession"/> class. 
     /// </summary>
-    public class SiteEFReadOnlySession : ReadOnlySession
+    public SiteEFReadOnlySession()
+        : base(new BlogEntitiesContext())
     {
-        #region Constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:Blog.Models.SiteEFReadOnlySession"/> class. 
-        /// </summary>
-        public SiteEFReadOnlySession()
-            : base(new BlogEntitiesContext())
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:Blog.Models.SiteEFReadOnlySession/> class. 
-        /// </summary>
-        /// <param name="context">The <see cref="T:System.Data.Entity.DbContext"/> 
-        /// for querying and working with entity data as objects.</param>
-        public SiteEFReadOnlySession(DbContext context)
-            : base(context)
-        {
-        }
-        #endregion
     }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="T:Blog.Models.SiteEFReadOnlySession/> class. 
+    /// </summary>
+    /// <param name="context">The <see cref="T:System.Data.Entity.DbContext"/> 
+    /// for querying and working with entity data as objects.</param>
+    public SiteEFReadOnlySession(DbContext context)
+        : base(context)
+    {
+    }
+    #endregion
+}
+```
     
-You will first need to wire up your controllers to use these classes. I prefer to do it using the interfaces `ISession` and `IReadOnlySession` and dependancy injection using the awesome **Ninject** http://www.ninject.org/ This gives me much more freedom should I want to change ORM.
+You will first need to wire up your controllers to use these classes. 
 
 An example would be something like this:
 
+```c#
+/// <summary>
+/// Encapulates methods required for basic controller functionality.
+/// </summary>
+public class BaseController : Controller
+{
+    #region Properties
     /// <summary>
-    /// Encapulates methods required for basic controller functionality.
+    /// Gets or sets the for persisting objects to and from data storage
+    /// using the Entity Framework Code First.
     /// </summary>
-    public class BaseController : Controller
+    public SiteEFCodeFirstSession ReadWriteSession { get; set; }
+
+    /// <summary>
+    /// Gets or sets the for retrieving objects from data storage
+    /// using the Entity Framework Code First.
+    /// </summary>
+    public SiteEFCodeFirstReadOnlySession ReadOnlySession { get; set; }
+    #endregion
+        
+    #region Methods
+    /// <summary>
+    /// Overrides the base implimentation of the base OnActionExecuting method. 
+    /// Called before the action method is invoked.
+    /// </summary>
+    /// <param name="filterContext">
+    /// A <see cref="T:System.Web.Mvc.ActionExecutingContext"/> providing information 
+    /// about the current request and action.
+    /// </param>
+    protected override void OnActionExecuting(ActionExecutingContext filterContext)
     {
-        #region Fields
-        /// <summary>
-        /// The session for persisting objects to and from data storage.
-        /// </summary>
-        internal readonly ISession ReadWriteSession;
-
-        /// <summary>
-        /// The readonly session for retrieving objects from data storage.
-        /// </summary>
-        internal readonly IReadOnlySession ReadOnlySession;
-        #endregion
-        
-        #region Constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:Blog.Controllers.BaseController"/> class. 
-        /// </summary>
-        /// <param name="session">
-        /// A <see cref="T:EFBootstrap.Interfaces.ISession"/>for persisting 
-        /// objects to and from data storage.
-        /// </param>
-        /// <param name="readonlySession">
-        /// A <see cref="T:EFBootstrap.Interfaces.IReadOnlySession"/> for retrieving objects from 
-        /// data storage.
-        /// </param>
-        public BaseController(ISession session, IReadOnlySession readonlySession)
-        {
-            this.ReadWriteSession = session;
-            this.ReadOnlySession = readonlySession;
-        }
-        #endregion      
-        
+        base.OnActionExecuting(filterContext);
+        this.ReadWriteSession = new SiteEFCodeFirstSession();
+        this.ReadOnlySession = new SiteEFCodeFirstReadOnlySession();
     }
-    
-and add the following code to the generated Ninject class in App_Start
 
-        /// <summary>
-        /// Load your modules or register your services here!
-        /// </summary>
-        /// <param name="kernel">The kernel.</param>
-        private static void RegisterServices(IKernel kernel)
-        {
-            // Bind the data acces session interfaces to the entity framework implimentation.
-            kernel.Bind<ISession>().To<SiteEFSession>().InRequestScope();
-            kernel.Bind<IReadOnlySession>().To<SiteEFReadOnlySession>().InRequestScope();
-        }    
+    /// <summary>
+    /// Overrides the base implimentation of the base OnActionExecuting method. 
+    /// Called after the action method is invoked.
+    /// </summary>
+    /// <param name="filterContext">
+    /// A <see cref="T:System.Web.Mvc.ActionExecutingContext"/> providing information 
+    /// about the current request and action.
+    /// </param>
+    protected override void OnActionExecuted(ActionExecutedContext filterContext)
+    {
+        this.ReadWriteSession.CommitChanges();
+    }
+    #endregion   
+}
+```
+    
+You could, if you like, for flexibility wire it up using the interfaces `ISession` and `IReadOnlySession` and dependency injection maybe 
+using something like **Ninject** http://www.ninject.org/ This would give you much more freedom should I want to change ORM.
         
 After that you should be ready to go.
 
@@ -143,50 +153,52 @@ Once everything is wired up querying the database is now very easy.
 
 Lets say I wanted to query all the posts in my blog in an ordered list. 
 
-        public ActionResult Index()
-        {
-            List<PagedPost> posts =
-                this.ReadOnlySession.Any<Post>(p => p.IsDeleted == false && p.IsPublished).OrderByDescending(
-                    p => p.DateCreated).Select(
-                        p =>
-                        new PagedPost
-                            {
-                                Id = p.Id,
-                                Title = p.Title,
-                                Content = p.Content,
-                                RelativeLink = p.RelativeLink,
-                                AdminLink = p.AdminLink,
-                                DateCreated = p.DateCreated.ToString("d", Utils.ResolveCulture())
-                            }).ToList();
+``` c#
+    public ActionResult Index()
+    {
+        List<PagedPost> posts =
+            this.ReadOnlySession.Any<Post>(p => p.IsDeleted == false && p.IsPublished).OrderByDescending(
+                p => p.DateCreated).Select(
+                    p =>
+                    new PagedPost
+                        {
+                            Id = p.Id,
+                            Title = p.Title,
+                            Content = p.Content,
+                            RelativeLink = p.RelativeLink,
+                            AdminLink = p.AdminLink,
+                            DateCreated = p.DateCreated.ToString("d", Utils.ResolveCulture())
+                        }).ToList();
 
-            return this.View(posts);
-        }
-        
+        return this.View(posts);
+    }
+```       
+ 
 Or if I wanted to save a post that I've edited.
 
-        public ActionResult SavePost(Post post)
-        {
-            // Get the post to edit.
-            Post newPost = this.ReadWriteSession.First<Post>(p => p.Id == post.Id);
+``` c#
+public ActionResult SavePost(Post post)
+{
+    // Get the post to edit.
+    Post newPost = this.ReadWriteSession.First<Post>(p => p.Id == post.Id);
 
-            if (newPost == null)
-            {
-                this.ReadWriteSession.Add(post);
-            }
-            else
-            {
-                newPost.Title = post.Title;
-                newPost.Content = post.Content;
-                newPost.IsPublished = post.IsPublished;
+    if (newPost == null)
+    {
+        this.ReadWriteSession.Add(post);
+    }
+    else
+    {
+        newPost.Title = post.Title;
+        newPost.Content = post.Content;
+        newPost.IsPublished = post.IsPublished;
                 
-                // This line is only needed for CodeFirst and does nothing in DBFirst
-                this.ReadWriteSession.Update(newPost);
-            }
+        // This line is only needed for CodeFirst and does nothing in DBFirst
+        this.ReadWriteSession.Update(newPost);
+    }
             
-            // Save the changes to the database.
-            this.ReadWriteSession.CommitChanges();
+    // Saving changes to the database is handled in the base controller.
+    return RedirectToAction("Index", "Home", new { area = string.Empty });
+}
+```        
 
-            return RedirectToAction("Index", "Home", new { area = string.Empty });
-        }
-        
 Simples eh? Hopefully this should be enough to get started with but if you get stuck just ask on twitter https://twitter.com/James_M_South
