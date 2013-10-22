@@ -98,13 +98,13 @@ public class BaseController : Controller
 {
     #region Properties
     /// <summary>
-    /// Gets or sets the for persisting objects to and from data storage
+    /// Gets or sets the session for persisting objects to and from data storage
     /// using the Entity Framework Code First.
     /// </summary>
     public SiteEFCodeFirstSession ReadWriteSession { get; set; }
 
     /// <summary>
-    /// Gets or sets the for retrieving objects from data storage
+    /// Gets or sets the session for retrieving objects from data storage
     /// using the Entity Framework Code First.
     /// </summary>
     public SiteEFCodeFirstReadOnlySession ReadOnlySession { get; set; }
@@ -143,7 +143,7 @@ public class BaseController : Controller
 ```
     
 You could, if you like, for flexibility wire it up using the interfaces `ISession` and `IReadOnlySession` and dependency injection maybe 
-using something like **Ninject** http://www.ninject.org/ This would give you much more freedom should I want to change ORM.
+using something like **Ninject** http://www.ninject.org/ This would give you much more freedom should you want to change ORM.
         
 After that you should be ready to go.
 
@@ -157,18 +157,19 @@ Lets say I wanted to query all the posts in my blog in an ordered list.
     public ActionResult Index()
     {
         List<PagedPost> posts =
-            this.ReadOnlySession.Any<Post>(p => p.IsDeleted == false && p.IsPublished).OrderByDescending(
-                p => p.DateCreated).Select(
-                    p =>
-                    new PagedPost
-                        {
-                            Id = p.Id,
-                            Title = p.Title,
-                            Content = p.Content,
-                            RelativeLink = p.RelativeLink,
-                            AdminLink = p.AdminLink,
-                            DateCreated = p.DateCreated.ToString("d", Utils.ResolveCulture())
-                        }).ToList();
+            this.ReadOnlySession.Any<Post>(p => p.IsDeleted == false && p.IsPublished)
+                                .OrderByDescending(
+								p => p.DateCreated).Select(
+									p =>
+									new PagedPost
+										{
+											Id = p.Id,
+											Title = p.Title,
+											Content = p.Content,
+											RelativeLink = p.RelativeLink,
+											AdminLink = p.AdminLink,
+											DateCreated = p.DateCreated.ToString("d", Utils.ResolveCulture())
+										}).ToList();
 
         return this.View(posts);
     }
