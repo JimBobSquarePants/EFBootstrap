@@ -1,11 +1,12 @@
-﻿#region Licence
-// -----------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="IReadOnlySession.cs" company="James South">
-//     Copyright (c) James South.
-//     Dual licensed under the MIT or GPL Version 2 licenses.
+//   Copyright (c) James South
+//   Licensed under GNU LGPL v3.
 // </copyright>
-// -----------------------------------------------------------------------
-#endregion
+// <summary>
+//   Encapsulates methods for persisting objects from data storage.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace EFBootstrap.Interfaces
 {
@@ -16,7 +17,7 @@ namespace EFBootstrap.Interfaces
     #endregion
 
     /// <summary>
-    /// Encapsulates methods for persisting objects to and from data storage.
+    /// Encapsulates methods for persisting objects from data storage.
     /// </summary>
     public interface IReadOnlySession : IDisposable
     {

@@ -1,11 +1,12 @@
-﻿#region Licence
-// -----------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="StringExtensions.cs" company="James South">
-//     Copyright (c) James South.
-//     Dual licensed under the MIT or GPL Version 2 licenses.
+//   Copyright (c) James South
+//   Licensed under GNU LGPL v3.
 // </copyright>
-// -----------------------------------------------------------------------
-#endregion
+// <summary>
+//   Encapsulates a series of time saving extension methods to <see cref="T:System.String">String</see>s.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace EFBootstrap.Extensions
 {
@@ -24,8 +25,6 @@ namespace EFBootstrap.Extensions
         #region Cryptography
         /// <summary>
         /// Creates an MD5 fingerprint of the String.
-        /// http://petemontgomery.wordpress.com
-        /// http://petemontgomery.wordpress.com/2008/08/07/caching-the-results-of-linq-queries/ 
         /// </summary>
         /// <param name="expression">The <see cref="T:System.String">String</see> instance that this method extends.</param>
         /// <returns>An MD5 fingerprint of the String.</returns>

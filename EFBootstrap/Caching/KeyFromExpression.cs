@@ -1,16 +1,20 @@
-﻿#region Licence
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="KeyFromExpression.cs" company="James South">
-//     Copyright (c) James South.
-//     Dual licensed under the MIT or GPL Version 2 licenses.
+//   Copyright (c) James South
+//   Licensed under GNU LGPL v3.
 // </copyright>
+// <summary>
+//   Encapsulates methods that allow the generation of a unique string representing a function expression.
+//   Adapted from work By Joakim aka Nertip <see cref="http://pastebin.com/DhHi0Cs2" />
+//   and Peter Montgomery <see cref="http://petemontgomery.wordpress.com/2008/08/07/caching-the-results-of-linq-queries/ " />
+// </summary>
 // --------------------------------------------------------------------------------------------------------------------
-#endregion
 
 namespace EFBootstrap.Caching
 {
     #region Using
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Linq.Expressions;
     using EFBootstrap.Extensions;
@@ -18,9 +22,10 @@ namespace EFBootstrap.Caching
 
     /// <summary>
     /// Encapsulates methods that allow the generation of a unique string representing a function expression.
-    /// Adapted from work By Joakim aka Nertip http://pastebin.com/DhHi0Cs2
-    /// and Peter Montogomery http://petemontgomery.wordpress.com/2008/08/07/caching-the-results-of-linq-queries/ 
+    /// Adapted from work By Joakim aka Nertip <see cref="http://pastebin.com/DhHi0Cs2"/> 
+    /// and Peter Montgomery <see cref="http://petemontgomery.wordpress.com/2008/08/07/caching-the-results-of-linq-queries/ "/> 
     /// </summary>
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
     public static class KeyFromExpression
     {
         #region Fields
@@ -49,6 +54,12 @@ namespace EFBootstrap.Caching
             {
                 return expression =>
                 {
+                    // Don't evaluate new instances.
+                    if (expression.NodeType == ExpressionType.New)
+                    {
+                        return false;
+                    }
+
                     // Don't evaluate parameters
                     if (expression.NodeType == ExpressionType.Parameter)
                     {
@@ -79,7 +90,7 @@ namespace EFBootstrap.Caching
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
         public static string GetCacheKey<T>(this Expression<Func<T, bool>> expression) where T : class
         {
-            // Convert the expresssion type to an object.
+            // Convert the expression type to an object.
             Expression<Func<T, object>> converted = AddBox<T, bool, object>(expression);
 
             return EvaluateExpression(converted);
@@ -96,17 +107,17 @@ namespace EFBootstrap.Caching
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
         public static string GetCacheKey<T>(this Expression<Func<T, object>> expression) where T : class
         {
-            return EvaluateExpression<T>(expression);
+            return EvaluateExpression(expression);
         }
 
         /// <summary>
         /// Converts a Linq Expression from one type to another.
-        /// http://stackoverflow.com/questions/729295/how-to-cast-expressionfunct-datetime-to-expressionfunct-object
+        /// <see cref="http://stackoverflow.com/questions/729295/how-to-cast-expressionfunct-datetime-to-expressionfunct-object"/> 
         /// </summary>
         /// <typeparam name="TModel">The type of entity for which to provide the method.</typeparam>
         /// <typeparam name="TFromProperty">The type to convert from.</typeparam>
         /// <typeparam name="TToProperty">The type to convert to.</typeparam>
-        /// <param name="expression"></param>
+        /// <param name="expression">The expression to convert.</param>
         /// <returns>The strongly typed lambda expression</returns>
         private static Expression<Func<TModel, TToProperty>> AddBox<TModel, TFromProperty, TToProperty>(Expression<Func<TModel, TFromProperty>> expression)
         {

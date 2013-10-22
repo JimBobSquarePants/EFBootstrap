@@ -1,11 +1,12 @@
-﻿#region Licence
-// -----------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ISession.cs" company="James South">
-//     Copyright (c) James South.
-//     Dual licensed under the MIT or GPL Version 2 licenses.
+//   Copyright (c) James South
+//   Licensed under GNU LGPL v3.
 // </copyright>
-// -----------------------------------------------------------------------
-#endregion
+// <summary>
+//   Encapsulates methods for persisting objects to and from data storage.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace EFBootstrap.Interfaces
 {

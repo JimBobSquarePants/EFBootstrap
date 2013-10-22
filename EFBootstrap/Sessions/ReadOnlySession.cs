@@ -1,19 +1,24 @@
-﻿#region Licence
-// -----------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ReadOnlySession.cs" company="James South">
-//     Copyright (c) James South.
-//     Dual licensed under the MIT or GPL Version 2 licenses.
+//   Copyright (c) James South
+//   Licensed under GNU LGPL v3.
 // </copyright>
-// -----------------------------------------------------------------------
-#endregion
+// <summary>
+//   Encapsulates methods for persisting objects to and from data storage
+//   using Entity Framework Code First.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace EFBootstrap.Sessions
 {
     #region Using
     using System;
     using System.Data.Entity;
+    using System.Data.Entity.Core.Objects;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Runtime.Caching;
+
     using EFBootstrap.Caching;
     using EFBootstrap.Interfaces;
     #endregion
@@ -26,7 +31,7 @@ namespace EFBootstrap.Sessions
     {
         #region Fields
         /// <summary>
-        /// The <see cref="T:System.Data.Entity.DbContext">DbContext</see> 
+        /// The <see cref="T:System.Data.Entity.DbContext"/> 
         /// for querying and working with entity data as objects.
         /// </summary>
         private readonly DbContext context;
@@ -50,7 +55,7 @@ namespace EFBootstrap.Sessions
         /// Initializes a new instance of the <see cref="T:EFBootstrap.Sessions.ReadOnlySession"/> class. 
         /// </summary>
         /// <param name="context">
-        /// The <see cref="T:System.Data.Entity.DbContext">DbContext</see> 
+        /// The <see cref="T:System.Data.Entity.DbContext"/> 
         /// for querying and working with entity data as objects.
         /// </param>
         public ReadOnlySession(DbContext context)
@@ -86,13 +91,13 @@ namespace EFBootstrap.Sessions
         /// <summary>
         /// Retrieves the first instance of the specified type that matches the given query, if possible from the cache.
         /// <para>
-        /// Objects are maintained in a <see cref="T:System.Data.EntityState">Detached</see> state and 
-        /// are not tracked in the <see cref="T:System.Data.Objects.ObjectStateManager">ObjectStateManager</see>.
+        /// Objects are maintained in a <see cref="EntityState">Detached</see> state and 
+        /// are not tracked in the <see cref="ObjectStateManager"/>.
         /// </para>
         /// <remarks>
         /// <para>
         /// It's important to note that since the method internally calls ToList(), any expression functions will 
-        /// utilize LinqToObjects and the normal rules of C# comparision will apply.
+        /// utilize LinqToObjects and the normal rules of C# comparison will apply.
         /// As a result a query this like this 
         /// <para>
         /// <example>
@@ -101,7 +106,7 @@ namespace EFBootstrap.Sessions
         /// </para>
         /// will call a NullExceptionError if the property "Color" is null.
         /// </para>
-        /// The best way to avoid this expection is to use <example>==</example> or switch the sides of the argument
+        /// The best way to avoid this exception is to use <example>==</example> or switch the sides of the argument
         /// <para>
         /// <example>
         /// .Single&lt;Product&gt;(x => "Black".Equals(x.Color, StringComparison.InvariantCultureIgnoreCase)
@@ -119,7 +124,7 @@ namespace EFBootstrap.Sessions
         /// </param>
         /// <returns>A single instance of the given type</returns>
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
-        public T First<T>(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includeCollection) 
+        public T First<T>(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includeCollection)
             where T : class, new()
         {
             return this.Any(expression, includeCollection).FirstOrDefault();
@@ -128,13 +133,13 @@ namespace EFBootstrap.Sessions
         /// <summary>
         /// A list of all instances of the specified type that match the expression, if possible from the cache.
         /// <para>
-        /// Objects are maintained in a <see cref="T:System.Data.EntityState">Detached</see> state and 
-        /// are not tracked in the <see cref="T:System.Data.Objects.ObjectStateManager">ObjectStateManager</see>.
+        /// Objects are maintained in a <see cref="EntityState">Detached</see> state and 
+        /// are not tracked in the <see cref="ObjectStateManager">ObjectStateManager</see>.
         /// </para>
         /// <remarks>
         /// <para>
         /// It's important to note that since the method internally calls ToList(), any expression functions will 
-        /// utilize LinqToObjects and the normal rules of C# comparision will apply.
+        /// utilize LinqToObjects and the normal rules of C# comparison will apply.
         /// As a result a query this like this 
         /// <para>
         /// <example>
@@ -143,7 +148,7 @@ namespace EFBootstrap.Sessions
         /// </para>
         /// will call a NullExceptionError if the property "Color" is null.
         /// </para>
-        /// The best way to avoid this expection is to use <example>==</example> or switch the sides of the argument
+        /// The best way to avoid this exception is to use <example>==</example> or switch the sides of the argument
         /// <para>
         /// <example>
         /// .All&lt;Product&gt;().Where(x => "Black".Equals(x.Color, StringComparison.InvariantCultureIgnoreCase)
@@ -164,7 +169,7 @@ namespace EFBootstrap.Sessions
         public IQueryable<T> Any<T>(Expression<Func<T, bool>> expression = null, params Expression<Func<T, object>>[] includeCollection)
             where T : class, new()
         {
-            IQueryable<T> query = this.context.Set<T>().AsNoTracking().AsQueryable<T>();
+            IQueryable<T> query = this.context.Set<T>().AsNoTracking().AsQueryable();
 
             if (includeCollection.Any())
             {
@@ -174,10 +179,20 @@ namespace EFBootstrap.Sessions
             // Check for a filtering expression and pull all if not.
             if (expression != null)
             {
-                query = query.Where<T>(expression);
+                query = query.Where(expression);
+            }
+            
+            if (Configuration.CacheLength > 0)
+            {
+                CacheItemPolicy cacheItemPolicy = new CacheItemPolicy
+                                                      {
+                                                          SlidingExpiration = TimeSpan.FromMinutes(Configuration.CacheLength)
+                                                      };
+
+                return query.FromCache(expression, cacheItemPolicy, includeCollection).AsQueryable();
             }
 
-            return query.FromCache<T>(expression, includeCollection).AsQueryable<T>();
+            return query.FromCache(expression, includeCollection).AsQueryable();
         }
         #endregion
         #endregion

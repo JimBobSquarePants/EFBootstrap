@@ -1,18 +1,19 @@
-﻿#region Licence
-// -----------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ReadWriteSession.cs" company="James South">
-//     Copyright (c) James South.
-//     Dual licensed under the MIT or GPL Version 2 licenses.
+//   Copyright (c) James South
+//   Licensed under GNU LGPL v3.
 // </copyright>
-// -----------------------------------------------------------------------
-#endregion
+// <summary>
+//   Encapsulates methods for persisting objects to and from data storage
+//   using Entity Framework Code First.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace EFBootstrap.Sessions
 {
     #region Using
     using System;
     using System.Collections.Generic;
-    using System.Data;
     using System.Data.Entity;
     using System.Data.Entity.Validation;
     using System.Diagnostics;
@@ -31,7 +32,7 @@ namespace EFBootstrap.Sessions
     {
         #region Fields
         /// <summary>
-        /// The <see cref="T:System.Data.Entity.DbContext">DbContext</see> 
+        /// The <see cref="T:System.Data.Entity.DbContext"/> 
         /// for querying and working with entity data as objects.
         /// </summary>
         private readonly DbContext context;
@@ -59,7 +60,7 @@ namespace EFBootstrap.Sessions
         /// <summary>
         /// Initializes a new instance of the <see cref="T:EFBootstrap.Sessions.ReadWriteSession"/> class. 
         /// </summary>
-        /// <param name="context">The <see cref="T:System.Data.Entity.DbContext">DbContext</see> 
+        /// <param name="context">The <see cref="T:System.Data.Entity.DbContext"/> 
         /// for querying and working with entity data as objects.</param>
         public ReadWriteSession(DbContext context)
         {
@@ -136,7 +137,7 @@ namespace EFBootstrap.Sessions
             // Check for a filtering expression and pull all if not.
             if (expression != null)
             {
-                query = query.Where<T>(expression);
+                query = query.Where(expression);
             }
 
             return query;

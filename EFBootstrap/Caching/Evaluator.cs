@@ -1,11 +1,12 @@
-﻿#region Licence
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Evaluator.cs" company="James South">
-//     Copyright (c) James South.
-//     Dual licensed under the MIT or GPL Version 2 licenses.
+//   Copyright (c) James South
+//   Licensed under GNU LGPL v3.
 // </copyright>
+// <summary>
+//   Enables the partial evaluation of queries.
+// </summary>
 // --------------------------------------------------------------------------------------------------------------------
-#endregion
 
 namespace EFBootstrap.Caching
 {
@@ -19,9 +20,9 @@ namespace EFBootstrap.Caching
     /// Enables the partial evaluation of queries.
     /// </summary>
     /// <remarks>
-    /// From http://msdn.microsoft.com/en-us/library/bb546158.aspx
-    /// http://petemontgomery.wordpress.com/2008/08/07/caching-the-results-of-linq-queries/ 
-    /// Copyright notice http://msdn.microsoft.com/en-gb/cc300389.aspx#O
+    /// <see cref="http://msdn.microsoft.com/en-us/library/bb546158.aspx"/> 
+    /// <see cref="http://petemontgomery.wordpress.com/2008/08/07/caching-the-results-of-linq-queries/ "/> 
+    /// Copyright notice  <see cref="http://msdn.microsoft.com/en-gb/cc300389.aspx#O"/> 
     /// </remarks>
     public static class Evaluator
     {
@@ -43,7 +44,7 @@ namespace EFBootstrap.Caching
         /// <returns>A new tree with sub-trees evaluated and replaced.</returns>
         public static Expression PartialEval(Expression expression)
         {
-            return PartialEval(expression, Evaluator.CanBeEvaluatedLocally);
+            return PartialEval(expression, CanBeEvaluatedLocally);
         }
 
         /// <summary>
@@ -65,12 +66,12 @@ namespace EFBootstrap.Caching
             /// <summary>
             /// The candidate expressions.
             /// </summary>
-            private HashSet<Expression> candidates;
+            private readonly HashSet<Expression> candidates;
             #endregion
 
             #region Constructors
             /// <summary>
-            /// Initializes a new instance of the <see cref="T:EFBootstrap.Caching.Evaluator.SubtreeEvaluator">SubtreeEvaluator</see> class. 
+            /// Initializes a new instance of the <see cref="T:EFBootstrap.Caching.Evaluator.SubtreeEvaluator"/> class. 
             /// </summary>
             /// <param name="candidates">
             /// The candidates for evaluation.
@@ -88,7 +89,7 @@ namespace EFBootstrap.Caching
             /// </summary>
             /// <param name="node">The expression to visit.</param>
             /// <returns>
-            /// The modified expression, if it or any subexpression was modified; otherwise,
+            /// The modified expression, if it or any sub-expression was modified; otherwise,
             /// returns the original expression.
             /// </returns>
             public override Expression Visit(Expression node)
@@ -100,7 +101,7 @@ namespace EFBootstrap.Caching
 
                 if (this.candidates.Contains(node))
                 {
-                    return Evaluator.SubtreeEvaluator.Evaluate(node);
+                    return Evaluate(node);
                 }
 
                 return base.Visit(node);
@@ -111,7 +112,7 @@ namespace EFBootstrap.Caching
             /// </summary>
             /// <param name="expression">The expression to evaluate.</param>
             /// <returns>
-            /// The modified expression, if it or any subexpression was modified; otherwise,
+            /// The modified expression, if it or any sub-expression was modified; otherwise,
             /// returns the original expression.
             /// </returns>
             internal Expression Eval(Expression expression)
@@ -150,7 +151,7 @@ namespace EFBootstrap.Caching
             /// <summary>
             /// A function that decides whether a given expression node can be part of the local function.
             /// </summary>
-            private Func<Expression, bool> functionCanBeEvaluated;
+            private readonly Func<Expression, bool> functionCanBeEvaluated;
 
             /// <summary>
             /// The candidates for evaluation.
@@ -181,7 +182,7 @@ namespace EFBootstrap.Caching
             /// </summary>
             /// <param name="node">The expression to visit.</param>
             /// <returns>
-            /// The modified expression, if it or any subexpression was modified; otherwise,
+            /// The modified expression, if it or any sub-expression was modified; otherwise,
             /// returns the original expression.
             /// </returns>
             public override Expression Visit(Expression node)

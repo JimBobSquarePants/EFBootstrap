@@ -1,11 +1,15 @@
-﻿#region Licence
-// -----------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LocalCollectionExpander.cs" company="James South">
-//     Copyright (c) James South.
-//     Dual licensed under the MIT or GPL Version 2 licenses.
+//   Copyright (c) James South
+//   Licensed under GNU LGPL v3.
 // </copyright>
-// -----------------------------------------------------------------------
-#endregion
+// <summary>
+//   Enables cache key support for local collection values.
+//   Based on the work by Peter Montgomery
+//   <see cref="http://petemontgomery.wordpress.com" />
+//   <see cref="http://petemontgomery.wordpress.com/2008/08/07/caching-the-results-of-linq-queries/ " />
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace EFBootstrap.Caching
 {
@@ -21,8 +25,9 @@ namespace EFBootstrap.Caching
 
     /// <summary>
     /// Enables cache key support for local collection values.
-    /// http://petemontgomery.wordpress.com
-    /// http://petemontgomery.wordpress.com/2008/08/07/caching-the-results-of-linq-queries/ 
+    /// Based on the work by Peter Montgomery
+    /// <see cref="http://petemontgomery.wordpress.com"/> 
+    /// <see cref="http://petemontgomery.wordpress.com/2008/08/07/caching-the-results-of-linq-queries/ "/> 
     /// </summary>
     public class LocalCollectionExpander : ExpressionVisitor
     {
@@ -42,7 +47,7 @@ namespace EFBootstrap.Caching
         /// </summary>
         /// <param name="node">The expression to visit.</param>
         /// <returns>
-        /// The modified expression, if it or any subexpression was modified; otherwise,
+        /// The modified expression, if it or any sub expression was modified; otherwise,
         /// returns the original expression.
         /// </returns>
         protected override Expression VisitMethodCall(MethodCallExpression node)
@@ -52,11 +57,11 @@ namespace EFBootstrap.Caching
                 .Zip(node.Arguments, (p, a) => new { Param = p.ParameterType, Arg = a })
                 .ToLinkedList();
 
-            // deal with instance methods
+            // Deal with instance methods
             Type instanceType = node.Object == null ? null : node.Object.Type;
             map.AddFirst(new { Param = instanceType, Arg = node.Object });
 
-            // for any local collection parameters in the method, make a
+            // For any local collection parameters in the method, make a
             // replacement argument which will print its elements
             var replacements = (from x in map
                                 where x.Param != null && x.Param.IsGenericType
@@ -64,12 +69,12 @@ namespace EFBootstrap.Caching
                                 where g == typeof(IEnumerable<>) || g == typeof(List<>)
                                 where x.Arg.NodeType == ExpressionType.Constant
                                 let elementType = x.Param.GetGenericArguments().Single()
-                                let printer = LocalCollectionExpander.MakePrinter((ConstantExpression)x.Arg, elementType)
+                                let printer = MakePrinter((ConstantExpression)x.Arg, elementType)
                                 select new { x.Arg, Replacement = printer }).ToList();
 
             if (replacements.Any())
             {
-                var args = map.Select(x => replacements.Where(r => r.Arg == x.Arg).Select(r => r.Replacement).SingleOrDefault() ?? x.Arg).ToList();
+                List<Expression> args = map.Select(x => replacements.Where(r => r.Arg == x.Arg).Select(r => r.Replacement).SingleOrDefault() ?? x.Arg).ToList();
 
                 node = node.Update(args.First(), args.Skip(1));
             }

@@ -1,11 +1,15 @@
-﻿#region Licence
-// -----------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="EnumerableExtensions.cs" company="James South">
-//     Copyright (c) James South.
-//     Dual licensed under the MIT or GPL Version 2 licenses.
+//   Copyright (c) James South
+//   Licensed under GNU LGPL v3.
 // </copyright>
-// -----------------------------------------------------------------------
-#endregion
+// <summary>
+//   Encapsulates a series of time saving extension methods to <see cref="T:System.Collections.Generic.IEnumerable`1" />.
+//   Based on the work by Peter Montgomery
+//   <see cref="http://petemontgomery.wordpress.com" />
+//   <see cref="http://petemontgomery.wordpress.com/2008/08/07/caching-the-results-of-linq-queries/ " />
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace EFBootstrap.Extensions
 {
@@ -16,17 +20,18 @@ namespace EFBootstrap.Extensions
     #endregion
 
     /// <summary>
-    /// Encapsulates a series of time saving extension methods to <see cref="T:System.Collections.Generic.IEnumerable`1">IEnumerable</see>s.
+    /// Encapsulates a series of time saving extension methods to <see cref="T:System.Collections.Generic.IEnumerable`1"/>.
+    /// Based on the work by Peter Montgomery
+    /// <see cref="http://petemontgomery.wordpress.com"/> 
+    /// <see cref="http://petemontgomery.wordpress.com/2008/08/07/caching-the-results-of-linq-queries/ "/>   
     /// </summary>
     public static class EnumerableExtensions
     {
         /// <summary>
-        /// Creates a doubly linked list from the IEnumberable.
-        /// http://petemontgomery.wordpress.com
-        /// http://petemontgomery.wordpress.com/2008/08/07/caching-the-results-of-linq-queries/ 
+        /// Creates a doubly linked list from the <see cref="T:System.Collections.Generic.IEnumerable`1"/>.
         /// </summary>
-        /// <param name="source">The <see cref="T:System.Collections.Generic.IEnumerable`1">IEnumerable</see> to produce the doubly linked list from.</param>
-        /// <returns>A doubly linked list from the IEnumberable.</returns>
+        /// <param name="source">The <see cref="T:System.Collections.Generic.IEnumerable`1"/> to produce the doubly linked list from.</param>
+        /// <returns>A doubly linked list from the <see cref="T:System.Collections.Generic.IEnumerable`1"/>.</returns>
         /// <typeparam name="T">The type of object that is enumerated.</typeparam>
         public static LinkedList<T> ToLinkedList<T>(this IEnumerable<T> source)
         {
@@ -34,28 +39,26 @@ namespace EFBootstrap.Extensions
         }
 
         /// <summary>
-        /// Returns a concatinated string separated by the given separator from the
+        /// Returns a concatenated string separated by the given separator from the
         /// given IEnumerable.
-        /// http://petemontgomery.wordpress.com
-        /// http://petemontgomery.wordpress.com/2008/08/07/caching-the-results-of-linq-queries/ 
         /// </summary>
-        /// <param name="source">The <see cref="T:System.Collections.Generic.IEnumerable`1">IEnumerable</see> to parse.</param>
+        /// <param name="source">The <see cref="T:System.Collections.Generic.IEnumerable`1"/> to parse.</param>
         /// <param name="selector">The function expression to add to the String.</param>
         /// <param name="separator">The separator that defines separate function expressions.</param>
-        /// <returns>A a concatinated string separated by the given separator from the given IEnumerable.</returns>
+        /// <returns>A a concatenated string separated by the given separator from the given <see cref="T:System.Collections.Generic.IEnumerable`1"/>.</returns>
         /// <typeparam name="T">The type of object that is enumerated.</typeparam>
         public static string ToConcatenatedString<T>(this IEnumerable<T> source, Func<T, string> selector, string separator)
         {
             StringBuilder stringBuilder = new StringBuilder();
             bool needSeparator = false;
 
-            foreach (var item in source)
+            foreach (T item in source)
             {
                 if (needSeparator)
                 {
                     stringBuilder.Append(separator);
                 }
-                
+
                 stringBuilder.Append(selector(item));
                 needSeparator = true;
             }
