@@ -2,8 +2,7 @@
 
 A class library written in C# for communicating with databases using the Entity Framework (built against EF6) from Microsoft. Comes with 2nd  level caching.
 
-These classes contain generic repositories allowing you to persist any class to/from your databases. They contain methods for CodeFirst and DB First 
-repositories in readonly and readwrite flavours. The readonly version will automatically provide 2nd level caching
+These classes contain generic repositories allowing you to persist any model to/from your databases. They contain methods for repositories in readonly and readwrite flavours. The readonly version will automatically provide 2nd level caching
 for your queries for a rolling ten minute period (configurable) which is flushed on any database updates.
 
 # Installation
@@ -57,7 +56,7 @@ public class SiteEFSession : ReadWriteSession
 
 ### ReadOnly
 
-```
+``` c#
 /// <summary>
 /// Encapsulates methods for retrieving objects from data storage
 /// using the Entity Framework.
@@ -143,7 +142,7 @@ public class BaseController : Controller
 ```
     
 You could, if you like, for flexibility wire it up using the interfaces `ISession` and `IReadOnlySession` and dependency injection maybe 
-using something like **Ninject** http://www.ninject.org/ This would give you much more freedom should you want to change ORM.
+using something like [Ninject] (http://www.ninject.org/) This would give you much more freedom should you want to change ORM.
         
 After that you should be ready to go.
 
@@ -159,17 +158,16 @@ Lets say I wanted to query all the posts in my blog in an ordered list.
         List<PagedPost> posts =
             this.ReadOnlySession.Any<Post>(p => p.IsDeleted == false && p.IsPublished)
                                 .OrderByDescending(
-								p => p.DateCreated).Select(
-									p =>
-									new PagedPost
-										{
-											Id = p.Id,
-											Title = p.Title,
-											Content = p.Content,
-											RelativeLink = p.RelativeLink,
-											AdminLink = p.AdminLink,
-											DateCreated = p.DateCreated.ToString("d", Utils.ResolveCulture())
-										}).ToList();
+									p => p.DateCreated).Select(
+										p => new PagedPost
+											 {
+										 		Id = p.Id,
+										 		Title = p.Title,
+										 		Content = p.Content,
+										 		RelativeLink = p.RelativeLink,
+										 		AdminLink = p.AdminLink,
+										 		DateCreated = p.DateCreated.ToString("d")
+										 	}).ToList();
 
         return this.View(posts);
     }
@@ -193,7 +191,6 @@ public ActionResult SavePost(Post post)
         newPost.Content = post.Content;
         newPost.IsPublished = post.IsPublished;
                 
-        // This line is only needed for CodeFirst and does nothing in DBFirst
         this.ReadWriteSession.Update(newPost);
     }
             
