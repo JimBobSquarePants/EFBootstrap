@@ -175,7 +175,8 @@ namespace EFBootstrap.Sessions
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
         public void Update<T>(T item) where T : class, new()
         {
-            this.context.Entry<T>(item).State = EntityState.Modified;
+            this.context.Set<T>().Attach(item);
+            this.context.Entry(item).State = EntityState.Modified;
 
             // Mark as dirty.
             this.isDirty = true;
@@ -188,6 +189,11 @@ namespace EFBootstrap.Sessions
         /// <typeparam name="T">The type of entity for which to provide the method.</typeparam>
         public void Delete<T>(T item) where T : class, new()
         {
+            if (this.context.Entry(item).State == EntityState.Detached)
+            {
+                this.context.Set<T>().Attach(item);
+            }
+
             this.context.Set<T>().Remove(item);
 
             // Mark as dirty.

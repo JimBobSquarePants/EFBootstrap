@@ -18,7 +18,6 @@ namespace EFBootstrap.Sessions
     using System.Linq;
     using System.Linq.Expressions;
     using System.Runtime.Caching;
-
     using EFBootstrap.Caching;
     using EFBootstrap.Interfaces;
     #endregion
