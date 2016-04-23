@@ -1,7 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFBootstrap", "EFBootstrap\EFBootstrap.csproj", "{F93D94C5-2C94-4C3C-83F3-5D559A223B81}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFBootstrap", "EFBootstrap\EFBootstrap.csproj", "{CCE00982-3553-45C4-A648-FADAE21659A6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFBootstrap.Tests", "EFBootstrap.Tests\EFBootstrap.Tests.csproj", "{B1F6134B-39B0-439A-A195-F8A94DEF72CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F93D94C5-2C94-4C3C-83F3-5D559A223B81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F93D94C5-2C94-4C3C-83F3-5D559A223B81}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F93D94C5-2C94-4C3C-83F3-5D559A223B81}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F93D94C5-2C94-4C3C-83F3-5D559A223B81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCE00982-3553-45C4-A648-FADAE21659A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCE00982-3553-45C4-A648-FADAE21659A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCE00982-3553-45C4-A648-FADAE21659A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCE00982-3553-45C4-A648-FADAE21659A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1F6134B-39B0-439A-A195-F8A94DEF72CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1F6134B-39B0-439A-A195-F8A94DEF72CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1F6134B-39B0-439A-A195-F8A94DEF72CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1F6134B-39B0-439A-A195-F8A94DEF72CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
